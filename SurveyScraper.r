@@ -82,7 +82,9 @@ getCourseRecord = function(course_num, start_year="1900", end_year="2019", month
   return(record)
 }
 
-getAllCourseRecords = function(snowcourses_df, start_year="1900", end_year="2019", month="(ALL)") {
+# getAllCourseRecords
+# gets records for multiple courses, by default all courses, all months, 1900-2019
+getAllCourseRecords = function(snowcourses_df = getSnowCourses(), start_year="1900", end_year="2019", month="(ALL)") {
   courses_list = snowcourses_df$Course
   record_list = lapply(courses_list, function(x) getCourseRecord(course_num = x, 
                                               start_year = start_year,
