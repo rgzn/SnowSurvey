@@ -69,6 +69,12 @@ getCourseRecord = function(course_num, start_year="1900", end_year="2019", month
   
   r = httr::GET(request_url)
   httr::stop_for_status(r)
+  
+  # HTML response indicates no data:
+  if(r$headers$`content-type` == "text/html") {
+    return(NULL)
+  }
+  
   result = httr::content(r, encoding = "UTF-8")
   result = gsub("^[^\n]*\n","", result) # remove first line, which is not csv
   record = read_csv(result, col_names = TRUE, na = "--")
