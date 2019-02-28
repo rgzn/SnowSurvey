@@ -42,6 +42,14 @@ getSnowCourses <- function() {
     c("Elev_feet", "Latitude", "Longitude", "April_1_Avg_inches"),
     as.numeric) 
   
+  # correct non-negative longitude:
+  snowcourses_df  = 
+    snowcourses_df  %>% mutate_at("Longitude", function(x) -1*abs(x)) 
+  
+  # remove negative snow depths:
+  snowcourses_df  = 
+    snowcourses_df  %>% mutate_at("April_1_Avg_inches", function(x) pmax(x,0))
+  
   return(snowcourses_df)
 }
 
