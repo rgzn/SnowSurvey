@@ -9,15 +9,8 @@ snow = getAllCourseRecords(courses)
 
 # Merge the dataframes
 
-snow_full = snow %>% left_join(courses, by = "Course")
-
-# correct non-negative longitude:
-courses = 
-  courses %>% mutate_at("Longitude", function(x) -1*abs(x)) 
-
-# remove negative snow depths:
-courses = 
-  courses %>% mutate_at("April_1_Avg_inches", function(x) pmax(x,0))
+snow_long = snow %>% gather(key = "Measurement", value = "value_in", c("Depth", "Water", "Adjusted"))
+snow_full = snow_long %>% left_join(courses, by = "Course")
 
 # create simple features dataframe for mapping
 courses_sf = st_as_sf(x = courses,
