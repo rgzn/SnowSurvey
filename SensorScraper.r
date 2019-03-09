@@ -3,6 +3,7 @@ library(httr)
 # library(rvest)
 library(glue)
 library(sf)
+library(lubridate)
 
 start_date_string = "1900-01-01"
 end_date_str = format(Sys.time(), "%Y-%m-%d")
@@ -60,7 +61,7 @@ get_closest_ru = function(x, rus) {
 # This is maddening:
 closest_ru = lapply(stations_sf$geometry, function(x) get_closest_ru(st_sfc(x,crs=sheep_crs), ru_sf))
 
-stations_sf$closest_RU = closest_ru
+stations_sf$closest_RU = as.character(closest_ru)
 
 # select stations from which to pull data:
 my_stations = stations_sf %>% 
@@ -81,7 +82,20 @@ request_url = glue(cdec_base_url, param_string)
 r = httr::GET(request_url)
 httr::stop_for_status(r)
 records = read_csv(httr::content(r, encoding = "UTF-8"), 
-                   col_names = TRUE, na = "")
+                   col_names = TRUE, 
+                   na = c("", "NA","-","--","---"), 
+                   col_types = "ccdcTTncc")
 
 # full table of snow records:
 snow = records %>% left_join(stations_sf, by = c("STATION_ID" = "ID"))
+
+# overall plot:
+snow_ru_means = snow %>% 
+  filter(SENSOR_TYPE == "SNOW DP") %>% 
+  mutate(year = year(`DATE TIME`)) %>%
+  group_by(STATION_ID, year) %>% 
+  summarise(mean = mean(VALUE, na.rm = TRUE), n = n(), closest_RU = first(closest_RU))
+
+ggplot(snow_ru_means, aes(x=year, y=mean)) +
+  geom_point(aes(col=closest_RU, alpha = n))
+
