@@ -90,12 +90,26 @@ records = read_csv(httr::content(r, encoding = "UTF-8"),
 snow = records %>% left_join(stations_sf, by = c("STATION_ID" = "ID"))
 
 # overall plot:
-snow_ru_means = snow %>% 
+snow_station_means = snow %>% 
   filter(SENSOR_TYPE == "SNOW DP") %>% 
   mutate(year = year(`DATE TIME`)) %>%
   group_by(STATION_ID, year) %>% 
   summarise(mean = mean(VALUE, na.rm = TRUE), n = n(), closest_RU = first(closest_RU))
 
-ggplot(snow_ru_means, aes(x=year, y=mean)) +
+ggplot(snow_station_means, aes(x=year, y=mean)) +
   geom_point(aes(col=closest_RU, alpha = n))
 
+snow_ru_means = snow %>% 
+  filter(SENSOR_TYPE == "SNOW DP") %>% 
+  mutate(year = year(`DATE TIME`)) %>%
+  group_by(closest_RU, year) %>% 
+  summarise(mean = mean(VALUE, na.rm = TRUE), n = n())
+
+ggplot(snow_ru_means, aes(mean)) +
+  geom_histogram(aes(fill=closest_RU), alpha =0.8)
+
+ggplot(snow_ru_means, aes(mean)) +
+  geom_density(aes(fill=closest_RU), alpha =0.4)
+
+ggplot(snow_ru_means %>% filter(year > 1960), aes(x=year, y=mean)) +
+  geom_point(aes(col=closest_RU))
