@@ -3,6 +3,12 @@
 This is a collection of R functions and scripts to download and analyse data from California Cooperative Snow Surveys. 
 All data is public data obtained from [CDEC](http://cdec.water.ca.gov)
 
+Currently the code is not clean. Updated code to include snow courses and sensors. Scripts are in ```SensorScraper.r```
+
+No modularity yet. That file is stand-alone and will scrape data and generate plots.
+
+# ALL BELOW IS DEPRECATED:
+
 ## Files:
  
   + SurveyScraper.r: Collection of functions to download and format data from CDEC API
