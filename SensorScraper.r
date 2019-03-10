@@ -92,7 +92,9 @@ snow = records %>% left_join(stations_sf, by = c("STATION_ID" = "ID"))
 # overall plot:
 snow_station_means = snow %>% 
   filter(SENSOR_TYPE == "SNOW DP") %>% 
-  mutate(year = year(`DATE TIME`)) %>%
+  filter(ElevationFeet > 9000) %>%
+  mutate(year = year(`DATE TIME`), month = month(`DATE TIME`)) %>% 
+  filter(month <= 6) %>%
   group_by(STATION_ID, year) %>% 
   summarise(mean = mean(VALUE, na.rm = TRUE), n = n(), closest_RU = first(closest_RU))
 
@@ -112,4 +114,14 @@ ggplot(snow_ru_means, aes(mean)) +
   geom_density(aes(fill=closest_RU), alpha =0.4)
 
 ggplot(snow_ru_means %>% filter(year > 1960), aes(x=year, y=mean)) +
-  geom_point(aes(col=closest_RU))
+  geom_point(aes(col=closest_RU), size=4.0, alpha = 0.7) +
+  ylab('mean snow depth (in)') +
+  scale_x_discrete(name="year", limits = seq(1950,2020,5) ) +
+  ggtitle("Average Snow Depths for Recovery Units, by year")
+
+stations_sf %>% 
+  filter(ElevationFeet >= 10000) %>%
+  group_by(closest_RU) %>%
+  summarise(N_stations = n()) %>% 
+  as.data.frame() %>%
+  select(closest_RU, N_stations)
